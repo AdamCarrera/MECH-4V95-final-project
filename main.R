@@ -1,40 +1,62 @@
-# Main - Run preprocessing on database and
-#   plot 500 points of electricity usage for the first building
+# Main - Preform ARIMA forecast on a single meter
 
-require(lubridate)
-require(ggplot2)
-# require(zoo)
-# require(dtw)
-
+library(lubridate)
+library(ggplot2)
 library(forecast)
 library(tseries)
+
+# Set working directory to this repo
 setwd("~/GitHub/MECH-4V95-final-project")
 
+# set a path to the csv directory
 path_to_files = paste0(getwd(), "/data/")
 
+
+# load functions for preprocessing and plotting
 source(paste0(getwd(), '/preprocessing.R'))
-source(paste0(getwd(), '/sample_building.R')) # Not used
+source(paste0(getwd(), '/consumption_plot.R'))
 
 
+# obtain list of all buildings
 data_set <- preprocess(path_to_files)
 
+
+# plot time series, observe trends
+
+consumption_plot(data_set = data_set[[1]][1:286,], building_number = 1)
+
+
+# convert consumption data into time series for forecasting
 y <- data_set[[1]][1:286,3]
-
 y <- ts(y, start = 0, frequency = 13)
+autoplot(y) # plot time series, observe that it is non-stationary
 
-autoplot(y)
+# Determine 'd' value via adf test
+# null hypothesis - non-stationary
+# reject if p > 1%, increment 'd'
+adf.test(y, k = 13) # non-stationary, (p > 0.01)
 
-adf.test(y, k = 13)
+y_2 <- diff(y, differences = 1) # increase differences from 0 to 1
 
-y_2 <- diff(y, differences = 1)
+adf.test(y_2, k = 13) # stationary! :) (p < 0.01)
 
-adf.test(y_2, k = 13)
+autoplot(y_2) # visually confirm series is stationary, let d = 1
 
-autoplot(y_2) # d = 1
 
+# determine order of AR and MA model, count spikes above blue line
 Pacf(y_2) # p = 7
 acf(y_2) # q = 8
 
+
+# build ARIMA model using parameters found previously
 tsMod <- Arima(y = y, order = c(7, 1, 8))
 
-autoplot(forecast(tsMod, h=13)) # 1 hour ahead forecast
+# forecast one hour ahead and plot
+y_forecast <- forecast(tsMod, h=13)
+autoplot(y_forecast)
+
+
+# forecast was done in the past, so we have access to the real data
+# evaluate prediction using RSME and MAE 
+y_predict <- y_forecast$mean
+y_real <- data_set[[1]][286:299,3]
