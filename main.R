@@ -7,12 +7,13 @@ require(ggplot2)
 # require(dtw)
 
 library(forecast)
+library(tseries)
 setwd("~/GitHub/MECH-4V95-final-project")
 
 path_to_files = paste0(getwd(), "/data/")
 
 source(paste0(getwd(), '/preprocessing.R'))
-source(paste0(getwd(), '/sample_building.R'))
+source(paste0(getwd(), '/sample_building.R')) # Not used
 
 
 data_set <- preprocess(path_to_files)
@@ -29,7 +30,7 @@ y_2 <- diff(y, differences = 1)
 
 adf.test(y_2, k = 13)
 
-autoplot(y_2)
+autoplot(y_2) # d = 1
 
 Pacf(y_2) # p = 7
 acf(y_2) # q = 8
