@@ -29,7 +29,7 @@ consumption_plot(data_set = data_set[[1]][1:286,], building_number = 1)
 # convert consumption data into time series for forecasting
 y <- data_set[[1]][1:286,3]
 y <- ts(y, start = 0, frequency = 13)
-autoplot(y) # plot time series, observe that it is non-stationary
+autoplot(y) + labs(x = 'Time', y = 'Load', title = 'Building One Time series, ~1 day') # plot time series, observe that it is non-stationary
 
 # Determine 'd' value via adf test
 # null hypothesis - non-stationary
@@ -40,7 +40,7 @@ y_2 <- diff(y, differences = 1) # increase differences from 0 to 1
 
 adf.test(y_2, k = 13) # stationary! :) (p < 0.01)
 
-autoplot(y_2) # visually confirm series is stationary, let d = 1
+autoplot(y_2) + labs(x = 'Time', y = 'Load', title = 'Building One Time series, ~1 day') # visually confirm series is stationary, let d = 1
 
 
 # determine order of AR and MA model, count spikes above blue line
@@ -53,7 +53,7 @@ tsMod <- Arima(y = y, order = c(7, 1, 8))
 
 # forecast one hour ahead and plot
 y_forecast <- forecast(tsMod, h=13)
-autoplot(y_forecast)
+autoplot(y_forecast) + labs(x = 'Time', y = 'Load')
 
 
 # forecast was done in the past, so we have access to the real data
