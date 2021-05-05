@@ -59,4 +59,9 @@ autoplot(y_forecast)
 # forecast was done in the past, so we have access to the real data
 # evaluate prediction using RSME and MAE 
 y_predict <- y_forecast$mean
-y_real <- data_set[[1]][286:299,3]
+y_real <- data_set[[1]][286:298,3]
+
+error <- y_predict - y_real
+predictionRMSE <- sqrt(mean(error^2))
+predictionMAE <- mean(abs(error))
+
