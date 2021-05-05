@@ -61,7 +61,9 @@ autoplot(y_forecast)
 y_predict <- y_forecast$mean
 y_real <- data_set[[1]][286:298,3]
 
-error <- y_predict - y_real
+error <- y_predict - y_real # Take difference between predicted data and actual data
+
+# Take RMSE and MAE errors
 predictionRMSE <- sqrt(mean(error^2))
 predictionMAE <- mean(abs(error))
 
